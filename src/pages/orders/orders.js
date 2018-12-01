@@ -33,7 +33,7 @@ export default class Orders extends Component {
         img: "",
         sales: 0
       },
-      selector: [
+      selector: ["自取，不要快递",
         "普通快递",
         "顺丰快递",
         "申通快递",
@@ -41,7 +41,7 @@ export default class Orders extends Component {
         "中通快递",
         "圆通快递"
       ],
-      deliveryCosts: [10, 20, 10, 15, 10, 10],
+      deliveryCosts: [0,10, 20, 10, 15, 10, 10],
       selectorChecked: "普通快递",
       checkCosts: 10,
       message: "",
@@ -136,6 +136,31 @@ export default class Orders extends Component {
       let addCity = `地址:${this.state.city};收件人:${
         this.state.user
       };联系方式:${this.state.tel};邮政编码:${this.state.ems};`;
+      let users=Taro.getStorageSync('userInfo')
+      console.log(users)
+      let cityDatas={}
+        cityDatas['recipients']=this.state.user,
+        cityDatas['disrection']=this.state.city,
+        cityDatas['tel']=this.state.tel,
+        cityDatas['code']=this.state.ems,
+        cityDatas['uid']=users.tel
+      
+
+      //提交收件人地址
+      requestHttps(
+        `shops/disrection`,
+        "GET",
+        cityDatas,
+        res => {
+          console.log(res);
+        
+        },
+        err => {
+          console.log(err);
+        }
+      );
+
+
 
       let addItem = { label: addCity, value: addCity };
       let newCity = [addItem, ...this.state.adderssLists];
@@ -173,13 +198,15 @@ export default class Orders extends Component {
     let ordersInfo = {};
     let isTrue = true;
 
-    if (this.state.adderss == "") {
-      isTrue = false;
-      Taro.atMessage({
-        //type为：success,error,warning
-        message: "收件人地址必填!",
-        type: "error"
-      });
+    if(this.state.checkCosts!=0){//无需快递时，不需要选择收货地址
+      if (this.state.adderss == "") {
+        isTrue = false;
+        Taro.atMessage({
+          //type为：success,error,warning
+          message: "收件人地址必填!",
+          type: "error"
+        });
+      }
     }
 
     if (isTrue) {
@@ -199,7 +226,7 @@ export default class Orders extends Component {
         "GET",
         ordersInfo,
         res => {
-          console.log(res);
+          // console.log(res);
           if (res.code == 1) {
             Taro.navigateTo({
               url: `http://www.sieia.org/index.php/index/pay/submit?order_number=${
@@ -218,6 +245,38 @@ export default class Orders extends Component {
   config = { navigationBarTitleText: "确定订单" };
 
   componentWillMount() {
+    let isUser=Taro.getStorageSync('userInfo')
+    if(!isUser){
+      //判断用户是否登录，没有登录先去登录
+      Taro.navigateTo({
+        url: `../../pages/login/login`
+      });
+      return false
+    }
+
+    //查询用户已有的收件地址显示
+    requestHttps(
+      `shops/isaddress?uid=${isUser.tel}`,
+      "GET",
+      "",
+      res => {
+        console.log(res)
+        if(res.code==1){
+          let addCity = res.data.map((item)=>{
+            return { label: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};`, value: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};` }
+          })
+          // console.log(addCity)
+          this.setState({
+            adderssLists:addCity
+          })
+        }
+      },
+      err => {
+        console.log(err);
+      }
+    );
+
+    //购买
     requestHttps(
       `shops/detail?id=${this.$router.params.id}`,
       "GET",

@@ -165,19 +165,10 @@ export default class Detail extends Component {
 
   componentDidHide() {}
 
-  rifuTextToView(str){
-    let ViewText=str.replace(/<\/?(img)[^>]*>/gi, 'Image')
-        ViewText=ViewText.replace(/<\/?(span|i|em|strong|b)[^>]*>/gi, 'Text')
-        ViewText=ViewText.replace(/<\/?(div|p|h1|h2|h3|h4|h5|h6)[^>]*>/gi, 'View')
-
-        return ViewText
-  }
+  
 
   render() {
     let { shopInfo } = this.state;
-    var s = '<a href="xxx">xxxababa</a>fjaljoxox<img src="xxxx"/>fjaljfoxoxoaa<p>fjxxp</p><b>fjdlfjo</b>'
-    s = s.replace(/<\/?(img)[^>]*>/gi, '');
-
     return (
       <View className='detail-mode'>
         <AtMessage />
