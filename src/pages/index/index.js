@@ -1,11 +1,14 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import { View} from '@tarojs/components'
+import Head from '../../components/head/head';
 import './index.less'
+import Tabs from '../../components/tabs/tabs';
+import Footer from '../../components/footer/footer';
 
 export default class Index extends Component {
 
   config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: '深圳双创频道'
   }
 
   componentWillMount () { }
@@ -21,7 +24,9 @@ export default class Index extends Component {
   render () {
     return (
       <View className='index'>
-        <Text>Hello world!</Text>
+        <Head></Head>
+        <Tabs></Tabs>
+        <Footer></Footer>
       </View>
     )
   }
