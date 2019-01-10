@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View,Text,Picker,Image} from '@tarojs/components'
-import {AtList,AtListItem,AtInput,AtIcon,AtRadio,AtMessage} from 'taro-ui'
+import { View,Text,Picker,Image,Button} from '@tarojs/components'
+import {AtList,AtListItem,AtInput,AtIcon,AtRadio,AtMessage,AtModal, AtModalHeader, AtModalContent, AtModalAction} from 'taro-ui'
 import './orders.less'
 
 
@@ -21,7 +21,8 @@ constructor(){
       checkCosts:10,//选择的快递费
       message:'',
       adderss:'',
-      allMoney:0
+      allMoney:0,
+      isOpened:false
     }
   }
 
@@ -33,7 +34,12 @@ constructor(){
       })
   }
   
-
+ addAdderss=(e)=>{
+   //添加地址
+   this.setState({
+     isOpened:true
+   })
+ }
 
   /**
    * 返回首页
@@ -106,7 +112,7 @@ constructor(){
         <AtMessage />
         <View className='adderss'>
           <AtList>
-            <AtListItem title='添加地址' arrow='right' />
+            <AtListItem onClick={this.addAdderss.bind(this)} title='添加地址' arrow='right' />
           </AtList>
           <View className='check-info'>
             <AtRadio
@@ -176,6 +182,16 @@ constructor(){
             <Text className='submit' onClick={this.submitForm.bind(this)}>提交订单</Text>
           </View>
         </View>
+
+        <AtModal isOpened={this.state.isOpened}>
+          <AtModalHeader>标题</AtModalHeader>
+          <AtModalContent>
+            这里是正文内容，欢迎加入京东凹凸实验室
+            这里是正文内容，欢迎加入京东凹凸实验室
+            这里是正文内容，欢迎加入京东凹凸实验室
+          </AtModalContent>
+          <AtModalAction> <Button>取消</Button> <Button>确定</Button> </AtModalAction>
+        </AtModal>
       </View>
     )
   }
