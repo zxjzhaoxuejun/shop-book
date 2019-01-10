@@ -16,6 +16,7 @@ constructor(){
       current: 0,
       isOpened:false,
       buyNum:1,
+      type:1,
       btnText:'确定',
       shopInfo:{
         shopName:'都会开始发生回复康师傅',
@@ -53,7 +54,8 @@ constructor(){
     }
     this.setState({
       isOpened:true,
-      btnText:btnVal
+      btnText:btnVal,
+      type:e.target.dataset.type
     })
   }
 
@@ -101,7 +103,15 @@ constructor(){
   }
 
   nextDo=(e)=>{
-
+    console.log(e.target.dataset.type)
+    if(e.target.dataset.type==1){
+      //购物车页面
+    }else{
+      //确定下单页面
+      Taro.navigateTo({
+        url:`../../pages/orders/orders`
+      })
+    }
   }
 
   config = {
@@ -185,7 +195,7 @@ constructor(){
               <Text className='add' onClick={this.add.bind(this)}>+</Text>
             </View>
           </View>
-          <View className='btn' onClick={this.nextDo.bind(this)}>{this.state.btnText}</View>
+          <View className='btn' data-type={this.state.type} onClick={this.nextDo.bind(this)}>{this.state.btnText}</View>
         </AtFloatLayout>
       </View>
     )
