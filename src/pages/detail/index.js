@@ -1,8 +1,10 @@
-import Taro, { Component } from '@tarojs/taro'
+import Taro, { Component} from '@tarojs/taro'
 import { View,Text,Image} from '@tarojs/components'
-import {AtTabs,AtTabsPane,AtIcon,AtFloatLayout} from 'taro-ui'
+import {AtTabs,AtTabsPane,AtIcon,AtFloatLayout,AtMessage} from 'taro-ui'
 import Banner from '../../components/banner/banner';
 import './detail.less'
+import requestHttps from '../../utils/request';
+import Pic from '../../config/config'
 
 
 export default class Detail extends Component {
@@ -14,17 +16,18 @@ constructor(){
           { title: '评价' }
         ],
       current: 0,
-      isOpened:false,
-      buyNum:1,
+      isOpenedMode:false,
+      buyNum:0,
       type:1,
       btnText:'确定',
       shopInfo:{
-        shopName:'都会开始发生回复康师傅',
-        price:99.00,
-        stores:1000,
+        id:'',
+        shop_name:'',
+        price:0.00,
+        stores:0,
         img:'',
         content:'',
-        sales:100
+        sales:0
       }
     }
   }
@@ -33,9 +36,10 @@ constructor(){
    * tablist切换
    * @param {*} value 
    */
-  handleClick (value) {
+  handleListClick= (e)=>{
     this.setState({
-      current: value
+      current: e,
+      isOpenedMode:false
     })
   }
 
@@ -53,7 +57,7 @@ constructor(){
       btnVal='下一步'
     }
     this.setState({
-      isOpened:true,
+      isOpenedMode:true,
       btnText:btnVal,
       type:e.target.dataset.type
     })
@@ -67,12 +71,13 @@ constructor(){
       this.setState({
       buyNum:this.state.buyNum-1,
       shopInfo:{
-        shopName:this.state.shopInfo.shopName,
+        shop_name:this.state.shopInfo.shop_name,
         price:this.state.shopInfo.price,
         stores:this.state.shopInfo.stores+1,
         img:this.state.shopInfo.img,
         content:this.state.shopInfo.content,
-        sales:this.state.shopInfo.sales
+        sales:this.state.shopInfo.sales,
+        id:this.state.shopInfo.id
       }
     })
     }
@@ -83,12 +88,13 @@ constructor(){
     this.setState({
       buyNum:this.state.buyNum+1,
       shopInfo:{
-        shopName:this.state.shopInfo.shopName,
+        shop_Name:this.state.shopInfo.shop_name,
         price:this.state.shopInfo.price,
         stores:this.state.shopInfo.stores-1,
         img:this.state.shopInfo.img,
         content:this.state.shopInfo.content,
-        sales:this.state.shopInfo.sales
+        sales:this.state.shopInfo.sales,
+        id:this.state.shopInfo.id
       }
     })
   }
@@ -108,8 +114,18 @@ constructor(){
       //购物车页面
     }else{
       //确定下单页面
+      if(this.state.buyNum==0){
+        Taro.atMessage({
+          //type为：success,error,warning
+          message: "请选择商品数量!",
+          type: "error"
+        });
+        return false
+      }
+        let id=this.state.shopInfo.id,
+        sales=this.state.buyNum
       Taro.navigateTo({
-        url:`../../pages/orders/orders`
+        url:`../../pages/orders/orders?id=${id}&num=${sales}`
       })
     }
   }
@@ -118,9 +134,21 @@ constructor(){
     navigationBarTitleText: '商品详情'
   }
 
-  componentWillMount () { }
+  componentWillMount () {
+     requestHttps(`shops/detail?id=${this.$router.params.id}`,'GET','',(res)=>{
+       this.setState({
+         shopInfo:res
+       })
+       console.log(res)
+     },(err)=>{
+        console.log(err)
+     })
+   }
 
-  componentDidMount () { }
+  componentDidMount () {
+    
+   
+   }
 
   componentWillUnmount () { }
 
@@ -132,9 +160,10 @@ constructor(){
     let {shopInfo}=this.state
     return (
       <View className='detail-mode'>
+         <AtMessage />
         <Banner></Banner>
         <View className='detail-top'>
-          <View className='title'>{shopInfo.shopName}</View>
+          <View className='title'>{shopInfo.shop_name}</View>
           <View className='price'>￥{shopInfo.price}</View>
           <View className='tags'>
             <Text>运费:￥10.00</Text>
@@ -144,7 +173,7 @@ constructor(){
         </View>
         <View className='push-mode'>
           <Text>配送方式:</Text>
-          <Text className='push-val'>快递</Text>
+          <Text className='push-val'>普通快递</Text>
         </View>
         
         <View className='detail-con'>
@@ -152,13 +181,13 @@ constructor(){
             current={this.state.current}
             scroll
             tabList={this.state.tabList}
-            onClick={this.handleClick.bind(this)}
+            onClick={this.handleListClick.bind(this)}
           >
           <AtTabsPane className='detail-con-item' current={this.state.current} index={0}>
-            内容
+            {shopInfo.content}
           </AtTabsPane>
           <AtTabsPane className='detail-con-item' current={this.state.current} index={1}>
-            评价
+            暂无评价
           </AtTabsPane>
         </AtTabs>
         </View>
@@ -175,12 +204,12 @@ constructor(){
           <View className='join-car' data-type='1' onClick={this.openBuyShop.bind(this)}>加入购物车</View>
           <View className='go-buy' data-type='2' onClick={this.openBuyShop.bind(this)}>立即购买</View>
         </View>
-        <AtFloatLayout isOpened={this.state.isOpened} onClose={this.handleClose}>
+        <AtFloatLayout isOpened={this.state.isOpenedMode} onClose={this.handleClose}>
           <View className='shop-title'>
-            <Image src={require('../../assets/imgs/banner_01.jpg')} className='img'>
+            <Image src={Pic.imgUrl+shopInfo.img} className='img'>
             </Image>
             <View className='name'>
-              <Text>{shopInfo.shopName}</Text>
+              <Text>{shopInfo.shop_name}</Text>
               <Text className='price'>￥{shopInfo.price}</Text>
             </View>
           </View>

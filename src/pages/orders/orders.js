@@ -14,6 +14,8 @@ import {
   AtForm
 } from "taro-ui";
 import "./orders.less";
+import requestHttps from '../../utils/request';
+import Pic from '../../config/config'
 
 export default class Orders extends Component {
   constructor() {
@@ -24,11 +26,12 @@ export default class Orders extends Component {
       phone: "",
       ems: "",
       shopInfo: {
-        shopName: "都会开始发生回复康师傅",
-        price: 99.0,
-        stores: 1000,
+        id:'',
+        shop_name: '',
+        price: 0,
+        stores: 0,
         img: "",
-        sales: 2
+        sales: 0
       },
       selector: [
         "普通快递",
@@ -43,21 +46,16 @@ export default class Orders extends Component {
       checkCosts: 10,
       message: "",
       adderss: "",
-      adderssLists: [
-        {
-          label:
-            "湖南省永州市冷水滩区中央新城C10-1702 联系人：赵学军 联系方式：18520820070",
-          value:
-            "湖南省永州市冷水滩区中央新城C10-1702 联系人：赵学军 联系方式：18520820070"
-        }
-      ],
+      adderssLists: [],
       allMoney: 0,
-      isOpened: false
+      isOpened: false,
+      buyNum:0
+
     }; //价格 //存货 //购买数量 //快递费 //选择的快递费
   }
 
   onSelectChange = e => {
-    console.log(e.detail.value);
+    
     this.setState({
       selectorChecked: this.state.selector[e.detail.value],
       checkCosts: this.state.deliveryCosts[e.detail.value]
@@ -83,7 +81,6 @@ export default class Orders extends Component {
     });
   };
 
-  nextDo = e => {};
 
   handleChange = value => {
     //留言
@@ -92,8 +89,8 @@ export default class Orders extends Component {
 
   handleRadioChange(value) {
     //地址选择
-    console.log(value);
-    this.setState({ adderss: value });
+    
+    this.setState({ adderss: value ,isOpened: false});
   }
 
   handleNameChange = e => {
@@ -116,7 +113,7 @@ export default class Orders extends Component {
     let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
       this.state.phone
     };邮政编码:${this.state.ems};`;
-    console.log(addCity);
+   
     let addItem = { label: addCity, value: addCity };
     let newCity = [addItem, ...this.state.adderssLists];
     this.setState({
@@ -141,20 +138,37 @@ export default class Orders extends Component {
       });
     } else {
       ordersInfo["price"] = this.state.shopInfo.price;
-      ordersInfo["shopName"] = this.state.shopInfo.shopName;
-      ordersInfo["sales"] = this.state.shopInfo.sales;
+      ordersInfo["shop_name"] = this.state.shopInfo.shop_name;
+      ordersInfo["buy_num"] = this.state.buyNum;
       ordersInfo["adderss"] = this.state.adderss;
       ordersInfo["message"] = this.state.message;
-      ordersInfo["selectorChecked"] = this.state.selectorChecked;
-      ordersInfo["checkCosts"] = this.state.checkCosts;
-      ordersInfo["allMoney"] = this.state.allMoney;
+      ordersInfo["k_name"] = this.state.selectorChecked;
+      ordersInfo["costs"] = this.state.checkCosts;
+      ordersInfo["allmoney"] = this.state.allMoney;
+      //提交
+      
+      requestHttps(`shops/orders`,'GET',ordersInfo,(res)=>{
+       console.log(res)
+     },(err)=>{
+        console.log(err)
+     })
     }
-    console.log(ordersInfo);
+   
   };
 
   config = { navigationBarTitleText: "确定订单" };
 
-  componentWillMount() {}
+  componentWillMount() {
+    requestHttps(`shops/detail?id=${this.$router.params.id}`,'GET','',(res)=>{
+       this.setState({
+         shopInfo:res,
+         buyNum:this.$router.params.num
+       })
+       
+     },(err)=>{
+        console.log(err)
+     })
+  }
 
   componentDidMount() {}
 
@@ -165,8 +179,8 @@ export default class Orders extends Component {
   componentDidHide() {}
 
   render() {
-    let { shopInfo } = this.state;
-    let shopMoney = shopInfo.sales * shopInfo.price;
+    let { shopInfo,buyNum} = this.state;
+    let shopMoney = buyNum * shopInfo.price;
     this.state.allMoney = shopMoney + this.state.checkCosts;
     return (
       <View className='order-mode'>
@@ -195,17 +209,17 @@ export default class Orders extends Component {
           </View>
           <View className='shop-info'>
             <Image
-              src={require("../../assets/imgs/banner_01.jpg")}
+              src={Pic.imgUrl+shopInfo.img}
               className='img'
             />
-            <View className='shop-title'>{shopInfo.shopName}</View>
+            <View className='shop-title'>{shopInfo.shop_name}</View>
             <View className='price-num'>
               <Text className='price'>￥{shopInfo.price}</Text>
-              <Text className='num'>X {shopInfo.sales}</Text>
+              <Text className='num'>X {buyNum}</Text>
             </View>
           </View>
           <View className='count'>
-            <Text>共{shopInfo.sales}件商品</Text>
+            <Text>共{buyNum}件商品</Text>
             <Text className='x-count'>小计:</Text>
             <Text className='m-count'>￥{shopMoney}</Text>
           </View>

@@ -29,12 +29,10 @@ class Tabs extends Component{
         onClick={this.handleClick.bind(this)}
       >
       <AtTabsPane current={this.state.current} index={0}>
-        <Lists></Lists>
-        <Lists></Lists>
-        <Lists></Lists>
+        <Lists shops={this.props.lists}></Lists>
       </AtTabsPane>
       <AtTabsPane current={this.state.current} index={1}>
-        <Lists></Lists>
+        <Lists shops={this.props.lists}></Lists>
       </AtTabsPane>
     </AtTabs>
     )

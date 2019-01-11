@@ -4,8 +4,17 @@ import Head from '../../components/head/head';
 import './index.less'
 import Tabs from '../../components/tabs/tabs';
 import Footer from '../../components/footer/footer';
+import requestHttps from '../../utils/request'
 
 export default class Index extends Component {
+
+  constructor() {
+    super(...arguments);
+    this.state = {
+      list:[],
+      banner:[]
+    };
+  }
 
   config = {
     navigationBarTitleText: '深圳双创频道'
@@ -13,7 +22,20 @@ export default class Index extends Component {
 
   componentWillMount () { }
 
-  componentDidMount () { }
+  componentDidMount () {
+    requestHttps('shops','GET','',(res)=>{
+      //请求成功
+      // console.log(res)
+      this.setState({
+        list:res.list,
+        banner:res.banner
+      })
+
+    }),(err)=>{
+      //请求失败
+      console.log(err)
+    }
+   }
 
   componentWillUnmount () { }
 
@@ -24,8 +46,8 @@ export default class Index extends Component {
   render () {
     return (
       <View className='index'>
-        <Head></Head>
-        <Tabs></Tabs>
+        <Head banner={this.state.banner}></Head>
+        <Tabs lists={this.state.list}></Tabs>
         <Footer></Footer>
       </View>
     )
