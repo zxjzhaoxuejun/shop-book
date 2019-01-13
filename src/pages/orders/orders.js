@@ -14,8 +14,8 @@ import {
   AtForm
 } from "taro-ui";
 import "./orders.less";
-import requestHttps from '../../utils/request';
-import Pic from '../../config/config'
+import requestHttps from "../../utils/request";
+import Pic from "../../config/config";
 
 export default class Orders extends Component {
   constructor() {
@@ -26,8 +26,8 @@ export default class Orders extends Component {
       phone: "",
       ems: "",
       shopInfo: {
-        id:'',
-        shop_name: '',
+        id: "",
+        shop_name: "",
         price: 0,
         stores: 0,
         img: "",
@@ -49,13 +49,11 @@ export default class Orders extends Component {
       adderssLists: [],
       allMoney: 0,
       isOpened: false,
-      buyNum:0
-
+      buyNum: 0
     }; //价格 //存货 //购买数量 //快递费 //选择的快递费
   }
 
   onSelectChange = e => {
-    
     this.setState({
       selectorChecked: this.state.selector[e.detail.value],
       checkCosts: this.state.deliveryCosts[e.detail.value]
@@ -81,7 +79,6 @@ export default class Orders extends Component {
     });
   };
 
-
   handleChange = value => {
     //留言
     this.setState({ message: value });
@@ -89,8 +86,8 @@ export default class Orders extends Component {
 
   handleRadioChange(value) {
     //地址选择
-    
-    this.setState({ adderss: value ,isOpened: false});
+
+    this.setState({ adderss: value, isOpened: false });
   }
 
   handleNameChange = e => {
@@ -113,7 +110,7 @@ export default class Orders extends Component {
     let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
       this.state.phone
     };邮政编码:${this.state.ems};`;
-   
+
     let addItem = { label: addCity, value: addCity };
     let newCity = [addItem, ...this.state.adderssLists];
     this.setState({
@@ -125,6 +122,38 @@ export default class Orders extends Component {
       adderssLists: newCity
     });
   };
+
+  jsApiCall() {
+    var data = { $data };
+    WeixinJSBridge.invoke("getBrandWCPayRequest", data, function(res) {
+      WeixinJSBridge.log(res.err_msg);
+      //alert('err_code:'+res.err_code+'err_desc:'+res.err_desc+'err_msg:'+res.err_msg);
+      //alert(res.err_code+res.err_desc+res.err_msg);
+      //alert(res);
+      if (res.err_msg == "get_brand_wcpay_request:ok") {
+        alert("支付成功!");
+        window.location.href =
+          "http://m.blog.csdn.net/article/details?id=72765676";
+      } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
+        alert("用户取消支付!");
+      } else {
+        alert("支付失败!");
+      }
+    });
+  }
+
+  callpay() {
+    if (typeof WeixinJSBridge == "undefined") {
+      if (document.addEventListener) {
+        document.addEventListener("WeixinJSBridgeReady", this.jsApiCall, false);
+      } else if (document.attachEvent) {
+        document.attachEvent("WeixinJSBridgeReady", this.jsApiCall);
+        document.attachEvent("onWeixinJSBridgeReady", this.jsApiCall);
+      }
+    } else {
+      this.jsApiCall();
+    }
+  }
 
   submitForm = e => {
     //答案提交
@@ -146,28 +175,39 @@ export default class Orders extends Component {
       ordersInfo["costs"] = this.state.checkCosts;
       ordersInfo["allmoney"] = this.state.allMoney;
       //提交
-      
-      requestHttps(`shops/orders`,'GET',ordersInfo,(res)=>{
-       console.log(res)
-     },(err)=>{
-        console.log(err)
-     })
+      this.callpay();
+
+      // requestHttps(
+      //   `shops/orders`,
+      //   "GET",
+      //   ordersInfo,
+      //   res => {
+      //     console.log(res);
+      //   },
+      //   err => {
+      //     console.log(err);
+      //   }
+      // );
     }
-   
   };
 
   config = { navigationBarTitleText: "确定订单" };
 
   componentWillMount() {
-    requestHttps(`shops/detail?id=${this.$router.params.id}`,'GET','',(res)=>{
-       this.setState({
-         shopInfo:res,
-         buyNum:this.$router.params.num
-       })
-       
-     },(err)=>{
-        console.log(err)
-     })
+    requestHttps(
+      `shops/detail?id=${this.$router.params.id}`,
+      "GET",
+      "",
+      res => {
+        this.setState({
+          shopInfo: res,
+          buyNum: this.$router.params.num
+        });
+      },
+      err => {
+        console.log(err);
+      }
+    );
   }
 
   componentDidMount() {}
@@ -179,7 +219,7 @@ export default class Orders extends Component {
   componentDidHide() {}
 
   render() {
-    let { shopInfo,buyNum} = this.state;
+    let { shopInfo, buyNum } = this.state;
     let shopMoney = buyNum * shopInfo.price;
     this.state.allMoney = shopMoney + this.state.checkCosts;
     return (
@@ -208,10 +248,7 @@ export default class Orders extends Component {
             <Text className='name'>深圳双创小店</Text>
           </View>
           <View className='shop-info'>
-            <Image
-              src={Pic.imgUrl+shopInfo.img}
-              className='img'
-            />
+            <Image src={Pic.imgUrl + shopInfo.img} className='img' />
             <View className='shop-title'>{shopInfo.shop_name}</View>
             <View className='price-num'>
               <Text className='price'>￥{shopInfo.price}</Text>

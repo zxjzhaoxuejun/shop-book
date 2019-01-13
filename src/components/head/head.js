@@ -1,35 +1,33 @@
-import Taro,{Component} from '@tarojs/taro';
-import {View} from '@tarojs/components';
-import {AtSearchBar,AtIcon} from 'taro-ui';
-import Banner from '../banner/banner';
-import './head.less'
+import Taro, { Component } from "@tarojs/taro";
+import { View } from "@tarojs/components";
+import { AtSearchBar, AtIcon } from "taro-ui";
+import Banner from "../banner/banner";
+import "./head.less";
 
-
-class Head extends Component{
-  constructor(){
-    super(...arguments)
-    this.state={
-      searchVal:''
-    }
+class Head extends Component {
+  constructor() {
+    super(...arguments);
+    this.state = {
+      searchVal: ""
+    };
   }
-  onSearchChange(value){
+  onSearchChange(value) {
     this.setState({
-      searchVal:value
-    })
+      searchVal: value
+    });
   }
-  render(){
-    return(
+  render() {
+    return (
       <View>
         <AtSearchBar
           value={this.state.searchVal}
           onChange={this.onSearchChange.bind(this)}
           fixed
         />
-        <Banner></Banner>
+        <Banner bannerUrl={this.props.banner} />
       </View>
-    )
+    );
   }
-
 }
 
 export default Head;
