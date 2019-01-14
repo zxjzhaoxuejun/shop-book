@@ -15,7 +15,6 @@ const requestHttps = function( url,method,data,success,err){
     },
     success:function(res){
       Taro.hideLoading();
-      console.log(res)
       success.call(_,res.data)
     },
     fail:function(){

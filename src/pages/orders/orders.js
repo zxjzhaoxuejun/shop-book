@@ -107,65 +107,79 @@ export default class Orders extends Component {
     this.setState({ ems: e });
   };
   submitAddChange = e => {
-    let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
-      this.state.phone
-    };邮政编码:${this.state.ems};`;
+    let isTrue=true;
+    if(!this.isPoneAvailable(this.state.phone)){
+          isTrue=false;
+          Taro.atMessage({
+            //type为：success,error,warning
+            message: "手机号码输入不正确!",
+            type: "error"
+          });
+          
+        }
+        if(this.state.user==''){
+          isTrue=false;
+          Taro.atMessage({
+            //type为：success,error,warning
+            message: "收件人必填!",
+            type: "error"
+          });
 
-    let addItem = { label: addCity, value: addCity };
-    let newCity = [addItem, ...this.state.adderssLists];
-    this.setState({
-      user: "",
-      city: "",
-      phone: "",
-      ems: "",
-      isOpened: false,
-      adderssLists: newCity
-    });
+        }
+        if(this.state.city==''){
+          isTrue=false;
+          Taro.atMessage({
+            //type为：success,error,warning
+            message: "收件人地址必填!",
+            type: "error"
+          });
+        }
+    if(isTrue){
+        let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
+          this.state.phone
+        };邮政编码:${this.state.ems};`;
+
+        let addItem = { label: addCity, value: addCity };
+        let newCity = [addItem, ...this.state.adderssLists];
+        this.setState({
+          user: "",
+          city: "",
+          phone: "",
+          ems: "",
+          isOpened: false,
+          adderssLists: newCity
+        });
+    }
   };
 
-  jsApiCall() {
-    var data = { $data };
-    WeixinJSBridge.invoke("getBrandWCPayRequest", data, function(res) {
-      WeixinJSBridge.log(res.err_msg);
-      //alert('err_code:'+res.err_code+'err_desc:'+res.err_desc+'err_msg:'+res.err_msg);
-      //alert(res.err_code+res.err_desc+res.err_msg);
-      //alert(res);
-      if (res.err_msg == "get_brand_wcpay_request:ok") {
-        alert("支付成功!");
-        window.location.href =
-          "http://m.blog.csdn.net/article/details?id=72765676";
-      } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
-        alert("用户取消支付!");
-      } else {
-        alert("支付失败!");
-      }
-    });
-  }
-
-  callpay() {
-    if (typeof WeixinJSBridge == "undefined") {
-      if (document.addEventListener) {
-        document.addEventListener("WeixinJSBridgeReady", this.jsApiCall, false);
-      } else if (document.attachEvent) {
-        document.attachEvent("WeixinJSBridgeReady", this.jsApiCall);
-        document.attachEvent("onWeixinJSBridgeReady", this.jsApiCall);
-      }
-    } else {
-      this.jsApiCall();
+    isPoneAvailable=(str)=>{
+      //手机号校验
+        var myreg=/^[1][2,,3,4,5,6,7,8,9][0-9]{9}$/;
+        if (!myreg.test(str)) {
+            return false;
+        } else {
+            return true;
+        }
     }
-  }
+
 
   submitForm = e => {
     //答案提交
 
     let ordersInfo = {};
+    let isTrue=true;
+    
     if (this.state.adderss == "") {
+      isTrue=false;
       Taro.atMessage({
         //type为：success,error,warning
         message: "收件人地址必填!",
         type: "error"
       });
-    } else {
+    }
+    
+    
+    if(isTrue){//提交
       ordersInfo["price"] = this.state.shopInfo.price;
       ordersInfo["shop_name"] = this.state.shopInfo.shop_name;
       ordersInfo["buy_num"] = this.state.buyNum;
@@ -175,7 +189,7 @@ export default class Orders extends Component {
       ordersInfo["costs"] = this.state.checkCosts;
       ordersInfo["allmoney"] = this.state.allMoney;
       //提交
-      this.callpay();
+      
 
       // requestHttps(
       //   `shops/orders`,

@@ -25,7 +25,7 @@ export default class Detail extends Component {
         content: "",
         sales: 0
       },
-      imgs: []
+      imgs: [{b_img:require('../../assets/imgs/detail_1.jpg')}]
     };
   }
 
@@ -161,7 +161,7 @@ export default class Detail extends Component {
     return (
       <View className='detail-mode'>
         <AtMessage />
-        <Banner bannerUrl={this.state.imgs} />
+        <Banner bannerUrl={this.state.imgs} bannerType='1' />
         <View className='detail-top'>
           <View className='title'>{shopInfo.shop_name}</View>
           <View className='price'>￥{shopInfo.price}</View>
@@ -188,7 +188,34 @@ export default class Detail extends Component {
               current={this.state.current}
               index={0}
             >
-              <View>{shopInfo.content}</View>
+              <View className='text-title'>
+                【编著简介】
+              </View>
+              <View className='figure-info'>
+                <Image src={require('../../assets/imgs/peo.jpg')} className='pic-t'></Image>
+                <View className='info-list'>
+                  <Text className='info-list-name'>胥苗龙</Text>
+                  <Text className='info-list-item'>青年创业导师</Text>
+                  <Text className='info-list-item'>互联网战略与品牌IP营销专家</Text>
+                  <Text className='info-list-item'>芝麻创投、网创家传媒创始人</Text>
+                  <Text className='info-list-item'>webrand创始人与中国品牌艾丕奖总召集人</Text>
+                  <Text className='info-list-item'>深圳市互联网创业创新服务促进会执行会长</Text>
+                </View>
+              </View>
+
+              <View className='text-title'>
+                【本书介绍】
+              </View>
+              <View className='book-info'>
+                随着市场经济的快速发展，身处其中的精英群体面临日益残酷的竞争，技能、经验及能力在快速变化的商业社会中需要不断的更新迭代，而只有建立个人品牌，才能具备可持续的价值，拓展商业边界，提高市场竞争力，降低职业生涯风险，提高创业成功率。
+              </View>
+              <View className='book-info'>
+                本书涵盖了个人品牌的认知、定位、塑造、营销、管理及工具共六部分二十四章节，把个人品牌从认知到实操一一道尽。以短篇、语录的形式展现，阅读体验俱佳。内容丰富，案例鲜活，看完全书能够快速上手打造属于自己的个人品牌，实现个人价值最大化。
+              </View>
+              <View className='book-info'>
+               本书适用于企业家、创业者、职业经理人、普通工作者、自由职业者、求职者等广大群体。
+              </View>
+
             </AtTabsPane>
             <AtTabsPane
               className='detail-con-item'

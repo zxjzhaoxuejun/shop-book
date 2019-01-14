@@ -30,11 +30,11 @@
     "@tarojs/taro-weapp": "^1.2.1",
     "nerv-devtools": "^1.3.9",
     "nervjs": "^1.3.9",
-    "taro-ui": "^1.5.3"
+    "taro-ui": "^1.5.2"
   },
   "devDependencies": {
     "@tarojs/plugin-babel": "^1.2.1",
-    "@tarojs/plugin-csso": "^1.2.1",
+    "@tarojs/plugin-csso": "^np1.2.1",
     "@tarojs/plugin-less": "^1.2.1",
     "@tarojs/plugin-sass": "^1.2.4",
     "@tarojs/plugin-uglifyjs": "^1.2.1",
