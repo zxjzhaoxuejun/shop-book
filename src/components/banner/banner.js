@@ -10,10 +10,10 @@ class Banner extends Component {
   }
   render() {
     const bannerArr = this.props.bannerUrl;
-    console.log(this.props.bannerType)
-    let httpImg='';
-    if(this.props.bannerType==0){
-      httpImg=Pic.imgUrl
+    console.log(this.props.bannerType);
+    let httpImg = "";
+    if (this.props.bannerType == 0) {
+      httpImg = Pic.imgUrl;
     }
     console.log(bannerArr);
     const bHtml = bannerArr.map(item => {
@@ -27,7 +27,7 @@ class Banner extends Component {
       <Swiper
         className='test-h'
         indicatorColor='#666'
-        indicatorActiveColor='#333'
+        indicatorActiveColor='#fff'
         circular
         indicatorDots
         autoplay
