@@ -24,7 +24,7 @@ class Head extends Component {
           onChange={this.onSearchChange.bind(this)}
           fixed
         />
-        <Banner bannerUrl={this.props.banner} />
+        <Banner bannerUrl={this.props.banner} bannerType='0' />
       </View>
     );
   }
