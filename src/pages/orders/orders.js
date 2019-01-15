@@ -107,79 +107,83 @@ export default class Orders extends Component {
     this.setState({ ems: e });
   };
   submitAddChange = e => {
-    let isTrue=true;
-        if(!this.isPoneAvailable(this.state.tel)){
-          isTrue=false;
-          Taro.atMessage({
-            //type为：success,error,warning
-            message: "手机号码输入不正确!",
-            type: "error"
-          });
-          
-        }
-        if(this.state.user==''){
-          isTrue=false;
-          Taro.atMessage({
-            //type为：success,error,warning
-            message: "收件人必填!",
-            type: "error"
-          });
-
-        }
-        if(this.state.city==''){
-          isTrue=false;
-          Taro.atMessage({
-            //type为：success,error,warning
-            message: "收件人地址必填!",
-            type: "error"
-          });
-        }
-    if(isTrue){
-        let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
-          this.state.tel
-        };邮政编码:${this.state.ems};`;
-
-        let addItem = { label: addCity, value: addCity };
-        let newCity = [addItem, ...this.state.adderssLists];
-        this.setState({
-          user: "",
-          city: "",
-          tel: "",
-          ems: "",
-          isOpened: false,
-          adderssLists: newCity
-        });
+    let isTrue = true;
+    if (!this.isPoneAvailable(this.state.tel)) {
+      isTrue = false;
+      Taro.atMessage({
+        //type为：success,error,warning
+        message: "手机号码输入不正确!",
+        type: "error"
+      });
     }
-  };
-
-    isPoneAvailable=(str)=>{
-      //手机号校验
-        var myreg=/^[1][2,3,4,5,6,7,8,9][0-9]{9}$/;
-        if (!myreg.test(str)) {
-            return false;
-        } else {
-            return true;
-        }
+    if (this.state.user == "") {
+      isTrue = false;
+      Taro.atMessage({
+        //type为：success,error,warning
+        message: "收件人必填!",
+        type: "error"
+      });
     }
-
-
-  submitForm = e => {
-    //答案提交
-
-    let ordersInfo = {};
-    let isTrue=true;
-    
-    if (this.state.adderss == "") {
-      isTrue=false;
+    if (this.state.city == "") {
+      isTrue = false;
       Taro.atMessage({
         //type为：success,error,warning
         message: "收件人地址必填!",
         type: "error"
       });
     }
-    
-    
-    if(isTrue){//提交
+    if (isTrue) {
+      let addCity = `地址:${this.state.city};收件人:${
+        this.state.user
+      };联系方式:${this.state.tel};邮政编码:${this.state.ems};`;
+
+      let addItem = { label: addCity, value: addCity };
+      let newCity = [addItem, ...this.state.adderssLists];
+      this.setState({
+        user: "",
+        city: "",
+        tel: "",
+        ems: "",
+        isOpened: false,
+        adderssLists: newCity
+      });
+    }
+  };
+
+  isPoneAvailable = str => {
+    //手机号校验
+    var myreg = /^[1][2,3,4,5,6,7,8,9][0-9]{9}$/;
+    if (!myreg.test(str)) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  //产生随机数函数
+  rndNum(n) {
+    var rnd = "";
+    for (var i = 0; i < n; i++) rnd += Math.floor(Math.random() * 10);
+    return "DL" + rnd;
+  }
+
+  submitForm = e => {
+    //答案提交
+
+    let ordersInfo = {};
+    let isTrue = true;
+
+    if (this.state.adderss == "") {
+      isTrue = false;
+      Taro.atMessage({
+        //type为：success,error,warning
+        message: "收件人地址必填!",
+        type: "error"
+      });
+    }
+
+    if (isTrue) {
+      //提交
       ordersInfo["price"] = this.state.shopInfo.price;
       ordersInfo["shop_name"] = this.state.shopInfo.shop_name;
       ordersInfo["buy_num"] = this.state.buyNum;
@@ -188,12 +192,26 @@ export default class Orders extends Component {
       ordersInfo["k_name"] = this.state.selectorChecked;
       ordersInfo["costs"] = this.state.checkCosts;
       ordersInfo["allmoney"] = this.state.allMoney;
+      ordersInfo["order_number"] = this.rndNum(3) + new Date().getTime();
       //提交
-      
-
-      Taro.navigateTo({
-        url: `http://www.sieia.org/index.php/index/pay/wxpay?allmoney=${ordersInfo["allmoney"]}`
-      });
+      requestHttps(
+        `shops/orders`,
+        "GET",
+        ordersInfo,
+        res => {
+          console.log(res);
+          if (res.code == 1) {
+            Taro.navigateTo({
+              url: `http://www.sieia.org/index.php/index/pay/submit?order_number=${
+                ordersInfo["order_number"]
+              }`
+            });
+          }
+        },
+        err => {
+          console.log(err);
+        }
+      );
     }
   };
 
