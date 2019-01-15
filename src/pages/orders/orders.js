@@ -23,7 +23,7 @@ export default class Orders extends Component {
     this.state = {
       user: "",
       city: "",
-      phone: "",
+      tel: "",
       ems: "",
       shopInfo: {
         id: "",
@@ -96,7 +96,7 @@ export default class Orders extends Component {
   };
   handleTelChange = e => {
     //地址添加
-    this.setState({ phone: e });
+    this.setState({ tel: e });
   };
   handleCityChange = e => {
     //地址添加
@@ -108,7 +108,7 @@ export default class Orders extends Component {
   };
   submitAddChange = e => {
     let isTrue=true;
-    if(!this.isPoneAvailable(this.state.phone)){
+        if(!this.isPoneAvailable(this.state.tel)){
           isTrue=false;
           Taro.atMessage({
             //type为：success,error,warning
@@ -136,7 +136,7 @@ export default class Orders extends Component {
         }
     if(isTrue){
         let addCity = `地址:${this.state.city};收件人:${this.state.user};联系方式:${
-          this.state.phone
+          this.state.tel
         };邮政编码:${this.state.ems};`;
 
         let addItem = { label: addCity, value: addCity };
@@ -144,7 +144,7 @@ export default class Orders extends Component {
         this.setState({
           user: "",
           city: "",
-          phone: "",
+          tel: "",
           ems: "",
           isOpened: false,
           adderssLists: newCity
@@ -154,7 +154,7 @@ export default class Orders extends Component {
 
     isPoneAvailable=(str)=>{
       //手机号校验
-        var myreg=/^[1][2,,3,4,5,6,7,8,9][0-9]{9}$/;
+        var myreg=/^[1][2,3,4,5,6,7,8,9][0-9]{9}$/;
         if (!myreg.test(str)) {
             return false;
         } else {
@@ -191,17 +191,9 @@ export default class Orders extends Component {
       //提交
       
 
-      // requestHttps(
-      //   `shops/orders`,
-      //   "GET",
-      //   ordersInfo,
-      //   res => {
-      //     console.log(res);
-      //   },
-      //   err => {
-      //     console.log(err);
-      //   }
-      // );
+      Taro.navigateTo({
+        url: `http://www.sieia.org/index.php/index/pay/wxpay?allmoney=${ordersInfo["allmoney"]}`
+      });
     }
   };
 
@@ -338,17 +330,17 @@ export default class Orders extends Component {
                 onChange={this.handleCityChange.bind(this)}
               />
               <AtInput
-                name='phone'
+                name='tel'
                 title='联系电话'
-                type='phone'
+                type='text'
                 placeholder='手机号码'
-                value={this.state.phone}
+                value={this.state.tel}
                 onChange={this.handleTelChange.bind(this)}
               />
               <AtInput
                 name='ems'
                 title='邮政编码'
-                type='number'
+                type='text'
                 placeholder='请输入邮政编码'
                 value={this.state.ems}
                 onChange={this.handleEmsChange.bind(this)}

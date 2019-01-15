@@ -85,7 +85,7 @@ export default class Detail extends Component {
     this.setState({
       buyNum: this.state.buyNum + 1,
       shopInfo: {
-        shop_Name: this.state.shopInfo.shop_name,
+        shop_name: this.state.shopInfo.shop_name,
         price: this.state.shopInfo.price,
         stores: this.state.shopInfo.stores - 1,
         img: this.state.shopInfo.img,
