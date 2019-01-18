@@ -1,5 +1,5 @@
 import Taro, { Component } from "@tarojs/taro";
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text, Image,RichText } from "@tarojs/components";
 import { AtTabs, AtTabsPane, AtIcon, AtFloatLayout, AtMessage } from "taro-ui";
 import Banner from "../../components/banner/banner";
 import "./detail.less";
@@ -44,6 +44,15 @@ export default class Detail extends Component {
    * 购买、收藏弹出选择信息
    */
   openBuyShop = e => {
+    
+    if(!Taro.getStorageSync('userInfo')){
+      //判断用户是否登录，没有登录先去登录
+      Taro.navigateTo({
+        url: `../../pages/login/login`
+      });
+
+      return false
+    }
     console.log(e.target.dataset.type);
     let btnVal = "";
     if (e.target.dataset.type == 1) {
@@ -156,8 +165,19 @@ export default class Detail extends Component {
 
   componentDidHide() {}
 
+  rifuTextToView(str){
+    let ViewText=str.replace(/<\/?(img)[^>]*>/gi, 'Image')
+        ViewText=ViewText.replace(/<\/?(span|i|em|strong|b)[^>]*>/gi, 'Text')
+        ViewText=ViewText.replace(/<\/?(div|p|h1|h2|h3|h4|h5|h6)[^>]*>/gi, 'View')
+
+        return ViewText
+  }
+
   render() {
     let { shopInfo } = this.state;
+    var s = '<a href="xxx">xxxababa</a>fjaljoxox<img src="xxxx"/>fjaljfoxoxoaa<p>fjxxp</p><b>fjdlfjo</b>'
+    s = s.replace(/<\/?(img)[^>]*>/gi, '');
+
     return (
       <View className='detail-mode'>
         <AtMessage />
@@ -214,6 +234,11 @@ export default class Detail extends Component {
               </View>
               <View className='book-info'>
                本书适用于企业家、创业者、职业经理人、普通工作者、自由职业者、求职者等广大群体。
+               
+
+              {/* <RichText nodes={shopInfo.content}></RichText> */}
+
+
               </View>
 
             </AtTabsPane>
