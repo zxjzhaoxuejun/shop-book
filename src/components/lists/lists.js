@@ -16,7 +16,7 @@ class Lists extends Component {
   buyShop(id,e) {
     e.stopPropagation();
     console.log(id)
-    Taro.navigateTo({ url: `../../pages/orders/orders?id=${id}` });
+    Taro.navigateTo({ url: `../../pages/orders/orders?id=${id}&num=1` });
   }
 
   /**

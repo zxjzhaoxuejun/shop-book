@@ -10,8 +10,15 @@ class Footer extends Component{
       
     }
   }
-  pageToJump(value){
-    console.log(value)
+  pageToJump(){//返回首页
+    Taro.navigateTo({
+      url: `../../pages/index/index`
+    });
+  }
+  goToBuyRecord(){//购买记录
+    Taro.navigateTo({
+      url: `../../pages/records/index`
+    });
   }
   render(){
     return(
@@ -19,7 +26,7 @@ class Footer extends Component{
         <View className='footer-list'>
           <Text onClick={this.pageToJump.bind(this)}>小店首页</Text>
           <Text> | </Text>
-          <Text onClick={this.pageToJump.bind(this)}>购买记录</Text>
+          <Text onClick={this.goToBuyRecord.bind(this)}>购买记录</Text>
         </View>
         <View className='copy-right'>
           <View>深圳网创传媒技术有限公司</View>

@@ -114,13 +114,18 @@ export default class Detail extends Component {
     });
   };
 
+  /**
+   * 进入购物车
+   */
+  goShopCart=()=>{
+    Taro.navigateTo({
+      url: `../../pages/carts/index`
+    });
+  }
+
   nextDo = e => {
-    console.log(e.target.dataset.type);
-    if (e.target.dataset.type == 1) {
-      //购物车页面
-    } else {
-      //确定下单页面
-      if (this.state.buyNum == 0) {
+    
+    if (this.state.buyNum == 0) {
         Taro.atMessage({
           //type为：success,error,warning
           message: "请选择商品数量!",
@@ -128,8 +133,35 @@ export default class Detail extends Component {
         });
         return false;
       }
-      let id = this.state.shopInfo.id,
-        sales = this.state.buyNum;
+    let id = this.state.shopInfo.id,
+      sales = this.state.buyNum,
+      users=Taro.getStorageSync('userInfo');
+    if (e.target.dataset.type == 1) {
+      let shopCarts={}
+      shopCarts['shopId']=id
+      shopCarts['stors']=sales
+      shopCarts['uid']=users.tel
+      //购物车页面
+      requestHttps(
+      `shops/carts`,
+      "GET",
+      shopCarts,
+      res => {
+        Taro.atMessage({
+          //type为：success,error,warning
+          message: res.msg,
+          type: "success"
+        });
+        this.setState({
+          isOpenedMode: false
+        })
+      },
+      err => {
+        console.log(err);
+      }
+    );
+    } else {
+      //确定下单页面
       Taro.navigateTo({
         url: `../../pages/orders/orders?id=${id}&num=${sales}`
       });
@@ -248,7 +280,7 @@ export default class Detail extends Component {
             <AtIcon value='home' color='#999' />
             <Text className='text'>首页</Text>
           </View>
-          <View className='home'>
+          <View className='home' onClick={this.goShopCart}>
             <AtIcon value='shopping-cart' color='#ff1000' />
             <Text className='text'>购物车</Text>
           </View>

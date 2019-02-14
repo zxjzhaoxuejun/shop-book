@@ -1,5 +1,5 @@
 import Taro, { Component } from "@tarojs/taro";
-import { View, Text, Picker, Image, Button } from "@tarojs/components";
+import { View, Text, Picker, Image, Button,Radio,RadioGroup,Label} from "@tarojs/components";
 import {
   AtList,
   AtListItem,
@@ -49,7 +49,8 @@ export default class Orders extends Component {
       adderssLists: [],
       allMoney: 0,
       isOpened: false,
-      buyNum: 0
+      buyNum: 0,
+      cityId:''
     }; //价格 //存货 //购买数量 //快递费 //选择的快递费
   }
 
@@ -84,10 +85,56 @@ export default class Orders extends Component {
     this.setState({ message: value });
   };
 
-  handleRadioChange(value) {
+  handleRadioChange(e) {
     //地址选择
+    this.setState({ adderss: e.detail.value});
+  }
 
-    this.setState({ adderss: value, isOpened: false });
+  handEdit(id,e){//地址修改
+    console.log(id,e);
+    requestHttps(
+        `shops/editaddress`,
+        "GET",
+        {id:id},
+        res => {
+          console.log(res);
+          if(res.code==1){
+            this.setState({
+              user:res.data.recipients,
+              tel:res.data.tel,
+              city:res.data.disrection,
+              ems:res.data.code,
+              isOpened:true,
+              cityId:res.data.id
+            })
+          }
+        },
+        err => {
+          console.log(err);
+        }
+      );
+  }
+
+  handDel(id,e){
+    //地址删除收件人地址
+    let users=Taro.getStorageSync('userInfo')
+        requestHttps(
+          `shops/deladdress`,
+          "GET",
+          {id:id},
+          res => {
+            console.log(res);
+            Taro.atMessage({
+              //type为：success,error,warning
+              message: res.msg,
+              type: "success"
+            });
+            this.getAddress(users)
+          },
+          err => {
+            console.log(err);
+          }
+        )
   }
 
   handleNameChange = e => {
@@ -133,11 +180,8 @@ export default class Orders extends Component {
       });
     }
     if (isTrue) {
-      let addCity = `地址:${this.state.city};收件人:${
-        this.state.user
-      };联系方式:${this.state.tel};邮政编码:${this.state.ems};`;
       let users=Taro.getStorageSync('userInfo')
-      console.log(users)
+
       let cityDatas={}
         cityDatas['recipients']=this.state.user,
         cityDatas['disrection']=this.state.city,
@@ -146,31 +190,52 @@ export default class Orders extends Component {
         cityDatas['uid']=users.tel
       
 
-      //提交收件人地址
-      requestHttps(
-        `shops/disrection`,
-        "GET",
-        cityDatas,
-        res => {
-          console.log(res);
-        
-        },
-        err => {
-          console.log(err);
-        }
-      );
-
-
-
-      let addItem = { label: addCity, value: addCity };
-      let newCity = [addItem, ...this.state.adderssLists];
+      if(this.state.cityId==''){
+        //添加提交收件人地址
+        requestHttps(
+          `shops/disrection`,
+          "GET",
+          cityDatas,
+          res => {
+            console.log(res);
+            Taro.atMessage({
+              //type为：success,error,warning
+              message: res.msg,
+              type: "success"
+            });
+            this.getAddress(users)
+          },
+          err => {
+            console.log(err);
+          }
+        )
+      }else{
+        //修改地址提交
+        cityDatas['id']=this.state.cityId
+        requestHttps(
+          `shops/update`,
+          "GET",
+          cityDatas,
+          res => {
+            Taro.atMessage({
+              //type为：success,error,warning
+              message: res.msg,
+              type: "success"
+            });
+            this.getAddress(users)
+          },
+          err => {
+            console.log(err);
+          }
+        )
+      }
       this.setState({
         user: "",
         city: "",
         tel: "",
         ems: "",
-        isOpened: false,
-        adderssLists: newCity
+        cityId:'',
+        isOpened: false
       });
     }
   };
@@ -197,6 +262,7 @@ export default class Orders extends Component {
 
     let ordersInfo = {};
     let isTrue = true;
+    let users=Taro.getStorageSync('userInfo')
 
     if(this.state.checkCosts!=0){//无需快递时，不需要选择收货地址
       if (this.state.adderss == "") {
@@ -211,6 +277,7 @@ export default class Orders extends Component {
 
     if (isTrue) {
       //提交
+      ordersInfo["uid"]=users.tel;
       ordersInfo["price"] = this.state.shopInfo.price;
       ordersInfo["shop_name"] = this.state.shopInfo.shop_name;
       ordersInfo["buy_num"] = this.state.buyNum;
@@ -220,7 +287,7 @@ export default class Orders extends Component {
       ordersInfo["costs"] = this.state.checkCosts;
       ordersInfo["allmoney"] = this.state.allMoney;
       ordersInfo["order_number"] = this.rndNum(3) + new Date().getTime();
-      //提交
+      //提交订单
       requestHttps(
         `shops/orders`,
         "GET",
@@ -242,7 +309,31 @@ export default class Orders extends Component {
     }
   };
 
-  config = { navigationBarTitleText: "确定订单" };
+  getAddress(isUser){
+    //获取用户添加的收货地址
+    requestHttps(
+          `shops/isaddress?uid=${isUser.tel}`,
+          "GET",
+          "",
+          res => {
+            console.log(res)
+            if(res.code==1){
+              let addCity = res.data.map((item)=>{
+                return {value: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};` ,checked:false,id:item.id}
+              })
+              // console.log(addCity)
+              this.setState({
+                adderssLists:addCity
+              })
+            }
+          },
+          err => {
+            console.log(err);
+          }
+        );
+  }
+
+  config = { navigationBarTitleText: "提交订单" };
 
   componentWillMount() {
     let isUser=Taro.getStorageSync('userInfo')
@@ -255,28 +346,9 @@ export default class Orders extends Component {
     }
 
     //查询用户已有的收件地址显示
-    requestHttps(
-      `shops/isaddress?uid=${isUser.tel}`,
-      "GET",
-      "",
-      res => {
-        console.log(res)
-        if(res.code==1){
-          let addCity = res.data.map((item)=>{
-            return { label: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};`, value: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};` }
-          })
-          // console.log(addCity)
-          this.setState({
-            adderssLists:addCity
-          })
-        }
-      },
-      err => {
-        console.log(err);
-      }
-    );
+    this.getAddress(isUser)
 
-    //购买
+    //购买详情页
     requestHttps(
       `shops/detail?id=${this.$router.params.id}`,
       "GET",
@@ -317,11 +389,16 @@ export default class Orders extends Component {
             />
           </AtList>
           <View className='check-info'>
-            <AtRadio
-              options={this.state.adderssLists}
-              value={this.state.adderss}
-              onClick={this.handleRadioChange.bind(this)}
-            />
+             <RadioGroup>
+                {this.state.adderssLists.map((item,i) => {
+                  return (
+                    <Label className='city-lists' for={i} key={i}  onChange={this.handleRadioChange.bind(this)}>
+                      <Radio value={item.value} checked={item.checked}>{item.value}</Radio>
+                      <View className='btn'><Text className='edit' onClick={this.handEdit.bind(this,item.id)}>修改</Text><Text className='del' onClick={this.handDel.bind(this,item.id)}>删除</Text></View>
+                    </Label>
+                  )
+                })}
+              </RadioGroup>
           </View>
         </View>
 
