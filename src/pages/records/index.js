@@ -96,6 +96,7 @@ export default class Records extends Component {
             </View>
           )
         })}
+        <View className={`show-info ${this.state.list.length>0?'is-show':''}`}>您暂时还没有购买记录，快去购买吧(*￣︶￣)</View>
         <Footer></Footer>
       </View>
     )
