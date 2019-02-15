@@ -5,6 +5,7 @@ import './index.less'
 import Tabs from '../../components/tabs/tabs';
 import Footer from '../../components/footer/footer';
 import requestHttps from '../../utils/request'
+import Area from '../../components/area/area';
 
 export default class Index extends Component {
 
@@ -49,6 +50,7 @@ export default class Index extends Component {
         <Head banner={this.state.banner}></Head>
         <Tabs lists={this.state.list}></Tabs>
         <Footer></Footer>
+        <Area></Area>
       </View>
     )
   }
