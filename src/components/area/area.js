@@ -1,19 +1,23 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker } from '@tarojs/components'
+import { View, Picker,Text } from '@tarojs/components'
 import requestHttps from '../../utils/request'
-
+import './area.less'
 
 export default class Area extends Component {
-  state = {
-    selector: [],
-    selectorChecked: '',
-    areas:[],
-    citys:[],
-    provinces:[]
+  constructor(props) {
+    super(props);
+    this.state = {
+      selector: [],
+      selectorChecked: [],
+      areas:[{"code":"110101","name":"东城区"},{"code":"110102","name":"西城区"},{"code":"110103","name":"崇文区"},{"code":"110104","name":"宣武区"},{"code":"110105","name":"朝阳区"},{"code":"110106","name":"丰台区"},{"code":"110107","name":"石景山区"},{"code":"110108","name":"海淀区"},{"code":"110109","name":"门头沟区"},{"code":"110111","name":"房山区"},{"code":"110112","name":"通州区"},{"code":"110113","name":"顺义区"},{"code":"110114","name":"昌平区"},{"code":"110115","name":"大兴区"},{"code":"110116","name":"怀柔区"},{"code":"110117","name":"平谷区"}],
+      citys:[{"code":"110100","name":"北京市"}],
+      provinces:[{"code":"110000","name":"北京市"}],
+    }
   }
 
   onChange = e => {
     console.log(e.detail)
+    this.props.handleCity(this.state.selector[0][e.detail.value[0]].name+this.state.selector[1][e.detail.value[1]].name+this.state.selector[2][e.detail.value[2]].name);
     this.setState({
       selectorChecked: this.state.selector[0][e.detail.value[0]].name+this.state.selector[1][e.detail.value[1]].name+this.state.selector[2][e.detail.value[2]].name
     })
@@ -29,8 +33,9 @@ export default class Area extends Component {
     }else if(e.detail.column==1){//市级选择
       //展示县区
       this.getAreas(columnVal.code)
+    }else{
+     
     }
-    
   }
 
   getCitys=(pid)=>{
@@ -40,6 +45,7 @@ export default class Area extends Component {
         this.getAreas(res.data[0].code)
         this.setState({
           citys:res.data,
+          selector:[this.state.provinces,res.data,this.state.areas],
         })
       }
     },(err)=>{
@@ -64,8 +70,9 @@ export default class Area extends Component {
   }
 
   
+  
 
-  componentWillMount () { }
+  componentWillMount () {}
 
   componentDidMount () {
     requestHttps('shops/getprovinces','GET','',(res)=>{
@@ -91,17 +98,11 @@ export default class Area extends Component {
   render () {
     return (
       <View className='container'>
-        <View className='page-body'>
-          <View className='page-section'>
-            <View>
-              <Picker mode='multiSelector' range={this.state.selector} onChange={this.onChange} rangeKey='name' onColumnchange={this.columnChangeVal}>
+        <Picker mode='multiSelector' range={this.state.selector} onChange={this.onChange.bind(this)} rangeKey='name' onColumnChange={this.columnChangeVal}>
                 <View className='picker'>
-                  省市区选择：{this.state.selectorChecked}
+                  城市选择<Text className='checke-val'>{this.state.selectorChecked}</Text>
                 </View>
               </Picker>
-            </View>
-          </View>
-        </View>
       </View>
     )
   }

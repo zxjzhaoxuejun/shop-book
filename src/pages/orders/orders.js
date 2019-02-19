@@ -16,6 +16,7 @@ import {
 import "./orders.less";
 import requestHttps from "../../utils/request";
 import Pic from "../../config/config";
+import Area from "../../components/area/area";
 
 export default class Orders extends Component {
   constructor() {
@@ -23,6 +24,7 @@ export default class Orders extends Component {
     this.state = {
       user: "",
       city: "",
+      checkCity:'',
       tel: "",
       ems: "",
       shopInfo: {
@@ -171,7 +173,7 @@ export default class Orders extends Component {
         type: "error"
       });
     }
-    if (this.state.city == "") {
+    if (this.state.city == ""||this.state.checkCity=="") {
       isTrue = false;
       Taro.atMessage({
         //type为：success,error,warning
@@ -184,6 +186,7 @@ export default class Orders extends Component {
 
       let cityDatas={}
         cityDatas['recipients']=this.state.user,
+        cityDatas['areas']=this.state.checkCity,
         cityDatas['disrection']=this.state.city,
         cityDatas['tel']=this.state.tel,
         cityDatas['code']=this.state.ems,
@@ -257,6 +260,11 @@ export default class Orders extends Component {
     return "DL" + rnd;
   }
 
+  handleCity=(e)=>{
+    this.setState({
+      checkCity:e
+    })
+  }
   submitForm = e => {
     //答案提交
 
@@ -319,7 +327,7 @@ export default class Orders extends Component {
             console.log(res)
             if(res.code==1){
               let addCity = res.data.map((item)=>{
-                return {value: `地址:${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};` ,checked:false,id:item.id}
+                return {value: `地址:${item.areas}${item.disrection};收件人:${item.recipients};联系方式:${item.tel};邮政编码:${item.code};` ,checked:false,id:item.id}
               })
               // console.log(addCity)
               this.setState({
@@ -475,11 +483,12 @@ export default class Orders extends Component {
                 value={this.state.user}
                 onChange={this.handleNameChange.bind(this)}
               />
+              <Area handleCity={this.handleCity.bind(this)}></Area>
               <AtInput
                 name='city'
-                title='收件人地址'
+                title='详细地址'
                 type='text'
-                placeholder='收件人地址'
+                placeholder='详细地址'
                 value={this.state.city}
                 onChange={this.handleCityChange.bind(this)}
               />
